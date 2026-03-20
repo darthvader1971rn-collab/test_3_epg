@@ -1,0 +1,32 @@
+name: Codzienny XML EPG
+
+on:
+  workflow_dispatch: # Przycisk do ręcznego odpalania
+  schedule:
+    - cron: '0 4 * * *' # Automat o 4:00 rano (czasu UTC)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobranie repozytorium
+        uses: actions/checkout@v4
+        
+      - name: Konfiguracja Pythona 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Instalacja bibliotek
+        run: pip install requests beautifulsoup4 lxml
+        
+      - name: Uruchomienie skryptu
+        run: python epg_xml.py 
+        
+      - name: Zapisanie pliku na GitHubie
+        run: |
+          git config --global user.name "EPG-Bot"
+          git config --global user.email "bot@epg.com"
+          git add Output/onet_test_full.xml
+          git commit -m "Aktualizacja bazy XML" || echo "Brak zmian do zapisu"
+          git push
